@@ -5,6 +5,9 @@
 
 // drivers
 #include "pm2_drivers/DebounceIn.h"
+#include "pm2_drivers/Stepper.h"
+#include <chrono>
+//#include "pm2_drivers/Stepper.h"
 
 bool do_execute_main_task = false; // this variable will be toggled via the user button (blue button) and
                                    // decides whether to execute the main task or not
@@ -25,7 +28,7 @@ int main()
 
     // while loop gets executed every main_task_period_ms milliseconds, this is a
     // simple approach to repeatedly execute main
-    const int main_task_period_ms = 20; // define main task period time in ms e.g. 20 ms, there for
+    const int main_task_period_ms = 20;  // define main task period time in ms e.g. 20 ms, there for
                                         // the main task will run 50 times per second
     Timer main_task_timer;              // create Timer object which we use to run the main task
                                         // every main_task_period_ms
@@ -33,35 +36,45 @@ int main()
     // led on nucleo board
     DigitalOut user_led(USER_LED);
 
-    // additional led
-    // create DigitalOut object to command extra led, you need to add an aditional resistor, e.g. 220...500 Ohm
-    // a led has an anode (+) and a cathode (-), the cathode needs to be connected to ground via a resistor
-    DigitalOut led1(PB_9);
+    //Stepper stepper(PB_14, PC_4, 0.5f, 200*16);
+    //Stepper stepper(PB_14, PC_4);
+    //Stepper stepper(PB_12, PA_15, 0.001f, 200*256);
+
+    DigitalOut step(PB_14);
+    DigitalOut dir(PC_4);
+    DigitalOut enableStepper(PB_1);
+
+    //DigitalOut halfstep(PC_5);
+
+    enableStepper.write(0);
+    dir.write(1);
+    //halfstep.write(1);
 
     // start timer
     main_task_timer.start();
 
-    // this loop will run forever
     while (true) {
         main_task_timer.reset();
 
         if (do_execute_main_task) {
-
-            // visual feedback that the main task is executed, setting this once would actually be enough
-            led1 = 1;
+            
+            //stepper.setAbsolutePosition(600);
         } else {
             // the following code block gets executed only once
             if (do_reset_all_once) {
                 do_reset_all_once = false;
 
-                // reset variables and objects
-                led1 = 0;
+                //stepper.setRelativeRevolutions(0.5f);
+            
+                //stepper.stopRotation();
+
+                //stepper.setPosition(stepper.getPosition() + 2000);
             }
+
         }
 
         // toggling the user led
         user_led = !user_led;
-
         // read timer and make the main thread sleep for the remaining time span (non blocking)
         int main_task_elapsed_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(main_task_timer.elapsed_time()).count();
         thread_sleep_for(main_task_period_ms - main_task_elapsed_time_ms);
@@ -76,3 +89,4 @@ void toggle_do_execute_main_fcn()
     if (do_execute_main_task)
         do_reset_all_once = true;
 }
+
