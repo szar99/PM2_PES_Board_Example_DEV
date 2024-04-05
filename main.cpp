@@ -37,17 +37,14 @@ int main()
     DigitalOut user_led(USER_LED);
 
     //Stepper stepper(PB_14, PC_4, 0.5f, 200*16);
-    //Stepper stepper(PB_14, PC_4);
-    //Stepper stepper(PB_12, PA_15, 0.001f, 200*256);
+    Stepper stepper(PB_14, PC_4);
 
-    DigitalOut step(PB_14);
-    DigitalOut dir(PC_4);
     DigitalOut enableStepper(PB_1);
 
     //DigitalOut halfstep(PC_5);
 
     enableStepper.write(0);
-    dir.write(1);
+
     //halfstep.write(1);
 
     // start timer
@@ -58,17 +55,13 @@ int main()
 
         if (do_execute_main_task) {
             
-            //stepper.setAbsolutePosition(600);
+            stepper.setAbsolutePosition(600);
         } else {
             // the following code block gets executed only once
             if (do_reset_all_once) {
                 do_reset_all_once = false;
 
-                //stepper.setRelativeRevolutions(0.5f);
-            
-                //stepper.stopRotation();
-
-                //stepper.setPosition(stepper.getPosition() + 2000);
+                stepper.setRelativeRevolutions(0.5f);
             }
 
         }
